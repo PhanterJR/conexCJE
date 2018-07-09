@@ -507,7 +507,7 @@ def pdv():
                                     UL(
                                         LI(
                                             DIV(
-                                                DIV("Item", _class="item_produto_pdv col-1"),
+                                                DIV("Item", _class="item_produto_pdv_cabecalho col-1"),
                                                 DIV("Produto", _class="nome_produto_pdv col-5"),
                                                 DIV("Preço", _class="preco_produto_pdv col-2"),
                                                 DIV("Qtd", _class="qtd_produto_pdv, col-2"),

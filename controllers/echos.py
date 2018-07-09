@@ -40,18 +40,18 @@ def pdv():
                     codigo_barra_prod=""
                     descricao=""
                     for x in q_produtos_vendidos:
-                        print "oxe"
+                        attr_data_item={'_data-item':x.id, 'data-preco':x.produtos.preco_final}
                         tot_itens+=1
                         total += (x.produtos.preco_final*x.quantidade)
                         html_produtos.append(LI(
                                                 DIV(
-                                                    DIV(str(tot_itens).zfill(3), _class="item_produto_pdv col-1"),
-                                                    DIV(x.produtos.produto, _class="nome_produto_pdv col-5"),
-                                                    DIV(em_reais(x.produtos.preco_final), _class="preco_produto_pdv col-2"),
+                                                    DIV(str(tot_itens).zfill(3), _class="item_produto_pdv col-1", _id="item_produto_pdv_%s" %x.id),
+                                                    DIV(x.produtos.produto, _class="nome_produto_pdv col-5", _id="nome_produto_pdv_%s" %x.id),
+                                                    DIV(em_reais(x.produtos.preco_final), _class="preco_produto_pdv col-2", _id="item_produto_pdv_%s" %x.id),
                                                     DIV(x.quantidade, _class="qtd_produto_pdv, col-2"),
                                                     DIV(em_reais(x.produtos.preco_final*x.quantidade), _class="subtotal_produto_pdv col-2"),
                                                     _class="row"),
-                                                _class="list-group-item")
+                                                _class="list-group-item pdv_produto_cancelar", _id="pdv_produto_cancelar_%s" %x.id, **attr_data_item)
                         )
                         url_foto = URL('default', 'download', args=[x.produtos.id_imagem.imagem])
                         codigo_barra_prod = x.produtos.cod_barra
@@ -78,6 +78,7 @@ def pdv():
                     script+= '$("#cod_barras_pdv").attr("data-id-venda","%s");' %(q_venda_aberta.id)
                     script+= '$("#botao_imprimir").attr("href", "%s");' %URL('servicos', 'imprimir_nota', args=[q_venda_aberta.id])
                     script+= '$("#botao_imprimir_modal").attr("href", "%s");' %URL('servicos', 'imprimir_nota', args=[q_venda_aberta.id])
+                    script+= 'mapear_botoes_cancelar_item();'
                     return script
                 else:
                     print cliente
@@ -108,6 +109,7 @@ def pdv():
                     script+= '$("#cod_barras_pdv").attr("data-id-venda","%s");' %(id_venda)
                     script+= '$("#botao_imprimir").attr("href", "%s");' %URL('servicos', 'imprimir_nota', args=[id_venda])
                     script+= '$("#botao_imprimir_modal").attr("href", "%s");' %URL('servicos', 'imprimir_nota', args=[id_venda])
+                    script+= 'mapear_botoes_cancelar_item();'
                     return script
             else:
                 return "$(\".toast\").text(\"Vendedor não Encontrado\").fadeIn(); fechar_toast_depois(); $(\"#pop\")[0].play();"
@@ -126,9 +128,6 @@ def pdv():
                     url_foto = URL('default', 'download', args=[q_produto.id_imagem.imagem])
                     codigo_barra_prod = q_produto.cod_barra
                     descricao = q_produto.descricao
-                    print total_atual, "-->",
-                    total_val = q_produto.preco_final*float(quantidade)
-                    print total_val
                     q_ver_venda = db(
                                     (db.produto_vendas.vendas==q_vendas.id)&
                                     (db.produto_vendas.quantidade==float(quantidade))&
@@ -141,18 +140,22 @@ def pdv():
                                                 valor_pago=q_produto.preco_final, 
                                                 ordem=int(ordem)+1)
                         db.commit()
+                    q_vendas_produtos = db((db.produto_vendas.vendas==q_vendas.id)).select()
+                    val_tot = 0.0
+                    for tot in q_vendas_produtos:
+                        val_tot+=(tot.produtos.preco_final*tot.quantidade)
+                    total_atual=val_tot
                     if id_registro_venda:
-                        total_atual+=total_val
-                        print "veio"
+                        attr_data_item={'_data-item':id_registro_venda, 'data-preco':q_produto.preco_final}
                         html_produtos.append(LI(
                                                 DIV(
-                                                    DIV(str(int(request.args(4))+1).zfill(3), _class="item_produto_pdv col-1"),
-                                                    DIV(q_produto.produto, _class="nome_produto_pdv col-5"),
+                                                    DIV(str(int(request.args(4))+1).zfill(3), _class="item_produto_pdv col-1", _id="item_produto_pdv_%s" %q_produto.id),
+                                                    DIV(q_produto.produto, _class="nome_produto_pdv col-5", _id="nome_produto_pdv_%s" %q_produto.id),
                                                     DIV(em_reais(q_produto.preco_final), _class="preco_produto_pdv col-2"),
                                                     DIV(quantidade, _class="qtd_produto_pdv, col-2"),
                                                     DIV(em_reais(q_produto.preco_final*float(quantidade)), _class="subtotal_produto_pdv col-2"),
                                                     _class="row"),
-                                                _class="list-group-item")
+                                                _class="list-group-item pdv_produto_cancelar", _id="pdv_produto_cancelar_%s" %id_registro_venda, **attr_data_item)
                         )
                         script= '$("#beep")[0].play(); $("#cod_barras_pdv").attr("data-tot-itens","%s");' %(int(request.args(4))+1)
                         script+= '$("#cod_barras_pdv").attr("data-tot-preco","%s");' %(total_atual)
@@ -164,11 +167,12 @@ def pdv():
                         script+= '$("#total_pdv").text("%s");' %(em_reais(float(total_atual)))
                         script+= '$("#lista_produtos_vendidos").append(%s);' %(json.dumps(html_produtos.xml()))
                         script+= '$("#quant_rod_pdv").text("%s");' %(int(request.args(4))+1)
+                        script+= 'mapear_botoes_cancelar_item();'
                         return script
                 else:
                     return "$(\".toast\").text(\"Produto não localizado\").fadeIn(); fechar_toast_depois(); $(\"#pop\")[0].play();"
             else:
-                return "$(\".toast\").text(\"Venda não localizada\").fadeIn(); fechar_toast_depois();"
+                return "$(\".toast\").text(\"Venda não localizada\").fadeIn(); fechar_toast_depois();$(\"#pop\")[0].play();"
         elif request.args(0)=="finalizar" and request.args(1) and request.args(2) and request.args(3) and request.args(4) and request.args(5):
             vendas = request.args(1)
             total =  float(request.args(2))
@@ -195,18 +199,38 @@ def pdv():
 
 
             else:
-                return "$(\".toast\").text(\"Venda não localizada\").fadeIn(); fechar_toast_depois();"
+                return "$(\".toast\").text(\"Venda não localizada\").fadeIn(); fechar_toast_depois(); $(\"#pop\")[0].play();"
 
 @auth.requires_membership('funcionario')
 def cancelar_venda():
     if request.args(0):
-        set_Vendas=db(db.vendas.id==request.args(0))
+        set_Vendas=db(db.vendas.id==request.args(0)&(db.vendas.aberta==True))
         q_vendas=set_Vendas.select().first()
         if q_vendas:
             set_Vendas.delete()
             db.commit()
             return "window.location=\"/conexcje/servicos/pdv/avulso\";"
 
+@auth.requires_membership('funcionario')
+def cancelar_produto():
+    if request.args(0):
+        set_produtos_venda=db(db.produto_vendas.id==request.args(0))
+        q_produtos_venda=set_produtos_venda.select().first()
+        id_vendas = q_produtos_venda.vendas
+        if q_produtos_venda and q_produtos_venda.vendas.aberta==True:
+            set_produtos_venda.delete()
+            db.commit()
+            q_all_produtos_venda = db(db.produto_vendas.vendas==id_vendas).select()
+            total_atual=0
+            for x in q_all_produtos_venda:
+                total_atual+=(x.produtos.preco_final*x.quantidade)
+            script= '$("#cod_barras_pdv").attr("data-tot-preco","%s");' %(total_atual)
+            script+= '$("#total_pdv_modal").text("%s");' %(total_atual)
+            script+= '$("#total_pdv").text("%s");' %(em_reais(float(total_atual)))
+            script+= 'cancelar_item(%s);' %request.args(0)
+            return script
+        else:
+            return '$(".toast").text("O item não pode ser deletado!"); $(".toast").fadeIn(); fechar_toast_depois(); $(\"#pop\")[0].play();'
 
 @auth.requires_membership('administrador')
 def deletar_mensagem():
@@ -216,7 +240,7 @@ def deletar_mensagem():
         if q_mensagem:
             meu_set.delete()
             db.commit()
-            return '$(".toast").text("Contato Deletado!"); $(".toast").fadeIn(); fechar_toast_depois();deletado_sucesso();'
+            return '$(".toast").text("Contato Deletado!"); $(".toast").fadeIn(); fechar_toast_depois(); $(\"#pop\")[0].play(); deletado_sucesso();'
 
 @auth.requires_membership('administrador')
 def mensagem_vista():
@@ -226,3 +250,8 @@ def mensagem_vista():
         if q_mensagem:
             q_mensagem.update_record(visto=True)
             return '$("#linha_contato_%s").removeClass("cabecalho");' %request.args(0)
+
+@auth.requires_membership('funcionario')
+def data_e_hora():
+    datahora=request.now.strftime('%d/%m/%Y %H:%M:%S')
+    return '$("#datahora_pdv").text(%s); setTimeout(getDataHora, 1000);' %json.dumps(datahora)

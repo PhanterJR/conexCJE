@@ -91,7 +91,7 @@ db.define_table("vendas",
     Field("troco", "double", default=0.0),
     Field("data_venda", "datetime", default=request.now, requires=IS_DATE(format='%d/%m/%Y %H:%M:%S')),
     Field("data_venda_finalizada", "datetime", requires=IS_EMPTY_OR(IS_DATE(format='%d/%m/%Y %H:%M:%S'))),
-    Field("aberta", default=True),
+    Field("aberta", "boolean", default=True),
     )
 
 db.define_table("produto_vendas",

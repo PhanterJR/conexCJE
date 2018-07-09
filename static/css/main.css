@@ -537,3 +537,19 @@ overflow: hidden; }
 .main_user_container {
     min-height: 375px;
 }
+.pdv_produto_cancelar:hover {
+    background-color: grey;
+    color: white;
+}
+.pdv_produto_cancelar.removido {
+    background-color: red;
+    color: white;
+    cursor: unset;
+}
+.pdv_produto_cancelar.removido:hover {
+    background-color: red;
+    color: white;
+}
+.pdv_produto_cancelar {
+    cursor: pointer;
+}

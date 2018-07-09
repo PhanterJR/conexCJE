@@ -148,3 +148,51 @@ function fechar_toast_depois(){
     }
     setTimeout(fechar, 3000);
   }
+function zfill(num, size) {
+    var s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
+ function cancelar_item(id){
+ 	$("#modal_excluir_item").modal("hide");
+ 	var idel = "#pdv_produto_cancelar_" + id
+ 	var el = $(idel)
+ 	el.addClass("removido")
+ 	var iditem = "#item_produto_pdv_" + id
+ 	var elitem = $(iditem)
+ 	elitem.addClass("removido")
+ 	var inicial = 1
+ 	$(".item_produto_pdv").each(function(){
+ 		var posicao = zfill(inicial, 3)
+ 		if ($(this).hasClass("removido")){
+ 			$(this).text("---")
+ 		} else {
+ 			$(this).text(posicao)
+ 			inicial+=1
+ 		}
+ 	})
+ 	$("#quant_rod_pdv").text(inicial-1)
+ };
+function mapear_botoes_cancelar_item(){
+	$(".pdv_produto_cancelar").unbind("click").on("click", function(){
+		var id_item = $(this).attr("data-item")
+		var nome_produto = $("#nome_produto_pdv_"+id_item).text()
+		var texto = 'Deseja realmente remover o item "'+nome_produto+'" desta venda? Esta ação é irreversível!'
+		$("#texto_excluir_item").text(texto);
+		$("#confirmar_exclusao_de_item").attr('data-item', id_item).unbind("click").on("click", function(){
+			var url_ajax="/conexcje/echos/cancelar_produto/"+id_item
+			console.log("excluindo item ----v")
+			console.log(url_ajax)
+			console.log("====================")
+			ajax(url_ajax,[], ":eval");
+		});
+		$("#modal_excluir_item").modal("show");
+	});
+}
+
+function getDataHora()
+{
+    var url_ajax="/conexcje/echos/data_e_hora"
+    ajax(url_ajax,[],":eval");
+}
+getDataHora();
