@@ -553,3 +553,6 @@ overflow: hidden; }
 .pdv_produto_cancelar {
     cursor: pointer;
 }
+.elipses{
+    text-overflow: ellipsis;overflow: hidden;width: 100%;white-space: nowrap;transition: height 2s;
+}

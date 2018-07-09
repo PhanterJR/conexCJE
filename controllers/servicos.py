@@ -68,7 +68,7 @@ def index():
             _class="container")
     return locals()
 
-@auth.requires_membership('funcionario')
+@auth.requires_membership('administrador')
 def fornecedores():
     html=""
     titulo=""
@@ -161,7 +161,7 @@ def produtos():
         html=MODELS_PHANTERSQLLISTAS
     return locals()
 
-@auth.requires_membership('funcionario')
+@auth.requires_membership('administrador')
 def estoque():
     html=""
     titulo=""

@@ -13,6 +13,8 @@ def sobre():
     else:
         id_novo_sobre = db(db.sobre).select().first().id
     form = SQLFORM(db.sobre, id_novo_sobre, showid=False)
+    if form.process().accepted:
+        return redirect(URL('default', 'sobre_nos'))
     return locals()
 
 @auth.requires_membership('administrador')
@@ -52,8 +54,8 @@ def contato():
                 html_comando_item.append(html_comando_meuns)
                 html_contatos_novos.append(LI(
                     DIV(
-                        DIV(x.nome, _class='col-2'),
-                        DIV(A(x.email, _href="mailto:%s" %x.email), _class='col-2'),
+                        DIV(x.nome, _class='col-2 elipses', _title=x.nome),
+                        DIV(A(x.email, _href="mailto:%s" %x.email), _class='col-2 elipses', _title=x.email),
                         DIV(DIV(x.mensagem, _id="mensagem_ver_contato_%s" %x.id, _class='mensagem_ver_contato hide'), _class='col-8'),
                         html_comando_item,
                         _class="row"),
@@ -85,8 +87,8 @@ def contato():
 
                 html_contatos_antigos.append(LI(
                     DIV(
-                        DIV(x.nome, _class='col-2'),
-                        DIV(A(x.email, _href="mailto:%s" %x.email), _class='col-2'),
+                        DIV(x.nome, _class='col-2 elipses', _title=x.nome),
+                        DIV(A(x.email, _href="mailto:%s" %x.email), _class='col-2 elipses', _title=x.email),
                         DIV(DIV(x.mensagem, _id="mensagem_ver_contato_%s" %x.id, _class='mensagem_ver_contato hide'), _class='col-8'),
                         html_comando_item,
                         _class="row"),

@@ -204,7 +204,7 @@ def pdv():
 @auth.requires_membership('funcionario')
 def cancelar_venda():
     if request.args(0):
-        set_Vendas=db(db.vendas.id==request.args(0)&(db.vendas.aberta==True))
+        set_Vendas=db((db.vendas.id==request.args(0))&(db.vendas.aberta==True))
         q_vendas=set_Vendas.select().first()
         if q_vendas:
             set_Vendas.delete()

@@ -43,7 +43,10 @@ def sobre_nos():
         A(DIV(ICONE_VOLTAR, _class="botao_menu_pagina"), _href=URL('default', 'index'), _title="voltar"),
         link_restrito,
         _class="comandos_main_container")
-    html=DIV("Aguardando informações serem adicionadas")
+    if db(db.sobre).isempty():
+        html=DIV("Aguardando informações serem adicionadas")
+    else:
+        html=DIV(DIV(XML(db.sobre[1].html), _class="col-12"), _class="row")
     return locals()
 
 def contato():
